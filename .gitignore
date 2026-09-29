@@ -1,2 +1,10 @@
 # Local Files
 local/
+
+# Dependencies
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
