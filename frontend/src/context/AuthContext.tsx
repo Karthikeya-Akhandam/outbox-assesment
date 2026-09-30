@@ -27,7 +27,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (token) {
-      axios.get('http://localhost:3001/api/auth/me', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      axios.get(`${apiUrl}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(response => {
@@ -46,7 +47,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [token]);
 
   const login = () => {
-    window.location.href = 'http://localhost:3001/api/auth/google';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    window.location.href = `${apiUrl}/api/auth/google`;
   };
 
   const logout = () => {

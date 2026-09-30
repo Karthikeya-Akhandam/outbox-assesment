@@ -31,10 +31,11 @@ export default function ScheduleEmailModal({ isOpen, onClose, onSuccess }: Sched
 
     // Parse comma separated emails
     const recipients = formData.to.split(',').map(e => e.trim()).filter(e => e);
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     try {
       await axios.post(
-        'http://localhost:3001/api/emails/schedule',
+        `${apiUrl}/api/emails/schedule`,
         {
           to: recipients,
           subject: formData.subject,

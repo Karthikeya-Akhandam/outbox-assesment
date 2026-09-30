@@ -37,9 +37,11 @@ export default function Dashboard() {
       let allEmails: Email[] = [];
       let scheduled = 0, sent = 0, failed = 0, rateLimited = 0;
 
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
       if (searchQuery) {
         // Use Elasticsearch Search Endpoint
-        const res = await axios.get(`http://localhost:3001/api/emails/search?q=${searchQuery}`, {
+        const res = await axios.get(`${apiUrl}/api/emails/search?q=${searchQuery}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         allEmails = res.data.emails;
@@ -54,8 +56,8 @@ export default function Dashboard() {
       } else {
         // Fetch from SQL endpoints
         const [schRes, sentRes] = await Promise.all([
-          axios.get('http://localhost:3001/api/emails/scheduled?limit=50', { headers: { Authorization: `Bearer ${token}` }}),
-          axios.get('http://localhost:3001/api/emails/sent?limit=50', { headers: { Authorization: `Bearer ${token}` }})
+          axios.get(`${apiUrl}/api/emails/scheduled?limit=50`, { headers: { Authorization: `Bearer ${token}` }}),
+          axios.get(`${apiUrl}/api/emails/sent?limit=50`, { headers: { Authorization: `Bearer ${token}` }})
         ]);
         
         allEmails = [...schRes.data.emails, ...sentRes.data.emails].sort((a, b) => 
