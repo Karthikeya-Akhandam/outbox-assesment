@@ -167,7 +167,7 @@ export default function ScheduleEmailModal({ isOpen, onClose, onSuccess }: Sched
                         min="0"
                         className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
                         value={formData.delayBetween}
-                        onChange={e => setFormData({ ...formData, delayBetween: e.target.value })}
+                        onChange={e => setFormData({ ...formData, delayBetween: parseInt(e.target.value) || 0 })}
                       />
                     </div>
                     <div>
@@ -177,7 +177,7 @@ export default function ScheduleEmailModal({ isOpen, onClose, onSuccess }: Sched
                         min="1"
                         className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
                         value={formData.hourlyLimit}
-                        onChange={e => setFormData({ ...formData, hourlyLimit: e.target.value })}
+                        onChange={e => setFormData({ ...formData, hourlyLimit: parseInt(e.target.value) || 1 })}
                       />
                     </div>
                   </div>

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 import ScheduleEmailModal from '../components/ScheduleEmailModal';
-import { Plus, Clock, Send, AlertCircle, RefreshCw } from 'lucide-react';
+import { Plus, Clock, Send, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Email {
