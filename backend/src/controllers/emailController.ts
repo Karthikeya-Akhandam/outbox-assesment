@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db';
 import { emailQueue } from '../queues/emailQueue';
+import { indexEmail } from '../services/elasticsearchService';
 
 export const scheduleEmails = async (req: Request, res: Response) => {
   try {
@@ -63,6 +64,9 @@ export const scheduleEmails = async (req: Request, res: Response) => {
         where: { id: email.id },
         data: { bullJobId: job.id }
       });
+
+      // Index to Elasticsearch
+      await indexEmail(email);
 
       emails.push(email);
     }

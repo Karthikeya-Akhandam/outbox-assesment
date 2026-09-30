@@ -4,6 +4,7 @@ import { prisma } from '../db';
 import { sendEmail } from '../services/emailTransporter';
 import { checkAndIncrementRate } from '../services/rateLimiter';
 import { emailQueue } from '../queues/emailQueue';
+import { updateIndexedEmailStatus } from '../services/elasticsearchService';
 
 const workerConcurrency = parseInt(process.env.WORKER_CONCURRENCY || '5', 10);
 
@@ -41,6 +42,8 @@ export const emailWorker = new Worker('email-queue', async (job: Job) => {
       data: { status: 'RATE_LIMITED' }
     });
 
+    await updateIndexedEmailStatus(email.id, 'RATE_LIMITED');
+
     // Re-add to queue with delay
     await emailQueue.add('send-email', { emailId, hourlyLimit }, {
       delay,
@@ -61,13 +64,16 @@ export const emailWorker = new Worker('email-queue', async (job: Job) => {
     // Send the email via SMTP
     const info = await sendEmail(email.to, email.subject, email.body);
 
+    const sentAt = new Date();
     await prisma.email.update({
       where: { id: email.id },
       data: { 
         status: 'SENT',
-        sentAt: new Date(),
+        sentAt,
       }
     });
+
+    await updateIndexedEmailStatus(email.id, 'SENT', sentAt);
 
     return info;
   } catch (error: any) {
@@ -80,6 +86,8 @@ export const emailWorker = new Worker('email-queue', async (job: Job) => {
         errorMessage: error.message
       }
     });
+
+    await updateIndexedEmailStatus(email.id, 'FAILED');
 
     throw error;
   }
