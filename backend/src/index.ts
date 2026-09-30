@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import './workers/emailWorker';
 import emailRoutes from './routes/emailRoutes';
 
 dotenv.config();
