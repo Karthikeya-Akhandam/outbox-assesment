@@ -1,9 +1,11 @@
-.PHONY: help run clear docker-up docker-down
+.PHONY: help run clean clear docker-up docker-down backend frontend
 
 help:
 	@echo "Available commands:"
-	@echo "  make run    - Starts Docker services, runs Prisma migrations, and starts the backend and frontend"
-	@echo "  make clear  - Stops Docker services and removes all volumes/data"
+	@echo "  make run      - Starts Docker services and runs Prisma migrations"
+	@echo "  make backend  - Starts the backend server"
+	@echo "  make frontend - Starts the frontend server"
+	@echo "  make clean    - Stops Docker services and removes all volumes/data"
 
 docker-up:
 	docker-compose -f docker/docker-compose.yml up -d
@@ -26,5 +28,7 @@ frontend:
 	@echo "Starting frontend..."
 	cd frontend && npm install && npm run dev
 
-clear: docker-down
+clean: docker-down
 	@echo "All containers and volumes cleared."
+
+clear: clean

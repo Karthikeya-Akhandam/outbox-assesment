@@ -63,7 +63,7 @@ Frontend will be available at `http://localhost:5173`
 ## 🧹 Teardown
 To shut down the infrastructure and wipe the Docker volumes (resetting the DB and Redis):
 ```bash
-make clear
+make clean
 ```
 
 ## 🧪 Testing the Rate Limiter
