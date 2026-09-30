@@ -26,6 +26,14 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
     "ioredis": "^6.0.0",
-    "nodemailer": "^10.0.12"
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^10.0.12",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.17"
   }
 }
