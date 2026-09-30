@@ -47,10 +47,14 @@ app.get('/health', (req, res) => {
 });
 
 import { recoverPendingJobs } from './services/restartRecovery';
+import { initElasticsearch } from './config/elasticsearch';
 
 app.listen(port, async () => {
   console.log(`Server is running on port ${port}`);
   
+  // Initialize Elasticsearch index
+  await initElasticsearch();
+
   // Run recovery after server starts
   await recoverPendingJobs();
 });
