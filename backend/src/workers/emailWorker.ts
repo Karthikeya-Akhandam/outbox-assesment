@@ -55,6 +55,10 @@ export const emailWorker = new Worker('email-queue', async (job: Job) => {
 }, { 
   connection,
   concurrency: workerConcurrency,
+  limiter: {
+    max: 1,
+    duration: parseInt(process.env.MIN_DELAY_BETWEEN_SENDS_MS || '2000', 10),
+  }
 });
 
 emailWorker.on('completed', (job) => {
