@@ -78,3 +78,61 @@ export const scheduleEmails = async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getScheduledEmails = async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId as string || (req.user as any)?.id;
+    const page = parseInt(req.query.page as string || '1', 10);
+    const limit = parseInt(req.query.limit as string || '10', 10);
+    const skip = (page - 1) * limit;
+
+    const where = { 
+      status: { in: ['SCHEDULED', 'QUEUED', 'RATE_LIMITED'] as any },
+      ...(userId ? { userId } : {})
+    };
+
+    const [emails, total] = await Promise.all([
+      prisma.email.findMany({
+        where,
+        orderBy: { scheduledAt: 'asc' },
+        skip,
+        take: limit,
+      }),
+      prisma.email.count({ where })
+    ]);
+
+    return res.json({ emails, total, page, totalPages: Math.ceil(total / limit) });
+  } catch (error) {
+    console.error('Error fetching scheduled emails:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getSentEmails = async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId as string || (req.user as any)?.id;
+    const page = parseInt(req.query.page as string || '1', 10);
+    const limit = parseInt(req.query.limit as string || '10', 10);
+    const skip = (page - 1) * limit;
+
+    const where = { 
+      status: { in: ['SENT', 'FAILED'] as any },
+      ...(userId ? { userId } : {})
+    };
+
+    const [emails, total] = await Promise.all([
+      prisma.email.findMany({
+        where,
+        orderBy: { sentAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.email.count({ where })
+    ]);
+
+    return res.json({ emails, total, page, totalPages: Math.ceil(total / limit) });
+  } catch (error) {
+    console.error('Error fetching sent emails:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
