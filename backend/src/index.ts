@@ -27,6 +27,8 @@ import { emailQueue } from './queues/emailQueue';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
+import './config/passport';
+import authRoutes from './routes/authRoutes';
 
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
@@ -40,6 +42,7 @@ app.use('/admin/queues', serverAdapter.getRouter());
 
 app.use('/api/', apiLimiter);
 
+app.use('/api/auth', authRoutes);
 app.use('/api/emails', emailRoutes);
 
 app.get('/health', (req, res) => {
