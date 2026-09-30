@@ -15,6 +15,10 @@
   "type": "commonjs",
   "description": "",
   "dependencies": {
+    "@bull-board/api": "^9.10.2",
+    "@bull-board/express": "^9.10.2",
+    "@bull-board/ui": "^9.10.2",
+    "@elastic/elasticsearch": "^9.5.1",
     "@prisma/client": "^6.19.3",
     "bullmq": "^6.3.10",
     "cors": "^2.8.6",
