@@ -48,10 +48,7 @@ make run
 ```
 *(In a separate terminal, to start the backend in dev mode)*
 ```bash
-cd backend
-npm install
-npx prisma db push
-npm run dev
+make backend
 ```
 Backend will be available at `http://localhost:3001`
 BullMQ Dashboard available at `http://localhost:3001/admin/queues`
@@ -59,9 +56,7 @@ BullMQ Dashboard available at `http://localhost:3001/admin/queues`
 ### 4. Start the Frontend
 In a new terminal:
 ```bash
-cd frontend
-npm install
-npm run dev
+make frontend
 ```
 Frontend will be available at `http://localhost:5173`
 

@@ -15,9 +15,16 @@ run: docker-up
 	@echo "Waiting for database to be ready..."
 	@sleep 5
 	@echo "Running Prisma migrations..."
-	cd backend && npx prisma db push
-	@echo "Starting application..."
-	@echo "Start backend and frontend manually or add start scripts here later."
+	cd backend && npm install && npx prisma db push
+	@echo "Infrastructure ready! You can now run 'make backend' and 'make frontend' in separate terminals."
+
+backend: docker-up
+	@echo "Starting backend..."
+	cd backend && npm install && npx prisma db push && npm run dev
+
+frontend:
+	@echo "Starting frontend..."
+	cd frontend && npm install && npm run dev
 
 clear: docker-down
 	@echo "All containers and volumes cleared."
