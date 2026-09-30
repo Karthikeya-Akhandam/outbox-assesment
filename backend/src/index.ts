@@ -18,6 +18,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(port, () => {
+import { recoverPendingJobs } from './services/restartRecovery';
+
+app.listen(port, async () => {
   console.log(`Server is running on port ${port}`);
+  
+  // Run recovery after server starts
+  await recoverPendingJobs();
 });
