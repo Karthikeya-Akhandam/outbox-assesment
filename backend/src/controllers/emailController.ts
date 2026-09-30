@@ -140,3 +140,44 @@ export const getSentEmails = async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const searchEmails = async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId as string || (req.user as any)?.id;
+    const q = req.query.q as string;
+
+    if (!q) {
+      return res.status(400).json({ error: 'Search query is required' });
+    }
+
+    // Direct import for ES client here to avoid circular dep issues in controller
+    const { esClient: client } = require('../config/elasticsearch');
+
+    const result = await client.search({
+      index: 'emails',
+      body: {
+        query: {
+          bool: {
+            must: [
+              {
+                multi_match: {
+                  query: q,
+                  fields: ['subject', 'body', 'to']
+                }
+              }
+            ],
+            ...(userId ? { filter: [{ term: { userId } }] } : {})
+          }
+        },
+        sort: [{ scheduledAt: { order: 'desc' } }]
+      }
+    });
+
+    const hits = result.hits.hits.map((hit: any) => hit._source);
+    
+    return res.json({ emails: hits, total: result.hits.total.value });
+  } catch (error) {
+    console.error('Error searching emails:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
