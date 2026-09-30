@@ -5,6 +5,7 @@ import { sendEmail } from '../services/emailTransporter';
 import { checkAndIncrementRate } from '../services/rateLimiter';
 import { emailQueue } from '../queues/emailQueue';
 import { updateIndexedEmailStatus } from '../services/elasticsearchService';
+import { sendSlackNotification } from '../services/slackService';
 
 const workerConcurrency = parseInt(process.env.WORKER_CONCURRENCY || '5', 10);
 
@@ -50,7 +51,8 @@ export const emailWorker = new Worker('email-queue', async (job: Job) => {
       jobId: `${email.id}-rescheduled-${nextHour.getTime()}` // New idempotency key for the reschedule
     });
 
-    // We can also trigger Slack notification here later
+    // Trigger Slack notification
+    await sendSlackNotification(`⚠️ Rate limit exceeded for sender \`${senderEmail}\`. Email \`${email.id}\` has been rescheduled for the next hour block.`);
     
     return { status: 'RATE_LIMITED', nextAttempt: nextHour };
   }
