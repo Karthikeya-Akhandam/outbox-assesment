@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReachInbox | System Architecture</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Mermaid JS -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' } }
+                }
+            }
+        }
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #22c55e, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass-card border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">R</div>
+                <span class="font-bold text-xl tracking-tight">ReachInbox Outbox</span>
+            </div>
+            <nav class="hidden md:flex gap-6">
+                <a href="#architecture" class="text-gray-600 hover:text-brand-500 font-medium transition-colors">Architecture</a>
+                <a href="#features" class="text-gray-600 hover:text-brand-500 font-medium transition-colors">Key Features</a>
+                <a href="#tech-stack" class="text-gray-600 hover:text-brand-500 font-medium transition-colors">Tech Stack</a>
+            </nav>
+            <a href="https://github.com/karthikeya-akhandam" target="_blank" class="px-5 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-medium transition-all shadow-lg hover:shadow-xl">GitHub</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-brand-50 border border-brand-500/20 text-brand-600 font-semibold text-sm">
+            High-Performance Email Scheduler
+        </div>
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
+            Intelligent <span class="gradient-text">Outbox Engine</span>
+        </h1>
+        <p class="text-xl text-gray-500 max-w-3xl mx-auto mb-10 leading-relaxed">
+            A massively scalable, robust email scheduling system built with Node.js, Redis, and Elasticsearch. Designed to handle rate limits, staggered delivery, and high-volume queuing effortlessly.
+        </p>
+    </section>
+
+    <!-- Architecture Diagram Section -->
+    <section id="architecture" class="py-16 bg-white border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">System Architecture</h2>
+                <p class="text-gray-500 max-w-2xl mx-auto">A decoupled, event-driven architecture ensuring maximum reliability and zero data loss during high loads.</p>
+            </div>
+            
+            <div class="glass-card rounded-2xl p-8 md:p-12 overflow-x-auto border border-gray-200">
+                <div class="mermaid flex justify-center">
+                    graph TD
+                        %% Clients
+                        User([👨‍💻 User Client])
+                        
+                        %% API Layer
+                        subgraph "API Layer (Express)"
+                            Auth[Google OAuth]
+                            API[REST Controllers]
+                        end
+                        
+                        %% Queue Layer
+                        subgraph "Queue & Processing (BullMQ)"
+                            Redis[(Upstash Redis)]
+                            Worker[Email Worker Process]
+                        end
+                        
+                        %% Data Layer
+                        subgraph "Persistence & Search"
+                            Postgres[(PostgreSQL)]
+                            ES[(Elasticsearch)]
+                        end
+                        
+                        %% External Services
+                        subgraph "External Integrations"
+                            SMTP[Ethereal SMTP]
+                            Slack[Slack Webhook]
+                        end
+
+                        %% Connections
+                        User -- "Schedules Emails" --> API
+                        User -- "Authenticates" --> Auth
+                        
+                        API -- "Saves State" --> Postgres
+                        API -- "Indexes Data" --> ES
+                        API -- "Enqueues Job with Delay" --> Redis
+                        
+                        Redis -- "Pops Job" --> Worker
+                        
+                        Worker -- "Updates Status" --> Postgres
+                        Worker -- "Sends Email" --> SMTP
+                        Worker -- "Rate Limit Alert" --> Slack
+                        
+                        %% Styling
+                        classDef db fill:#f0fdf4,stroke:#22c55e,stroke-width:2px;
+                        classDef ext fill:#f3f4f6,stroke:#9ca3af,stroke-width:2px;
+                        classDef core fill:#eff6ff,stroke:#3b82f6,stroke-width:2px;
+                        
+                        class Postgres,Redis,ES db;
+                        class SMTP,Slack,Auth ext;
+                        class API,Worker core;
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section id="features" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold mb-4">Core Engineering Features</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto">Built with production-grade patterns to ensure scalability and developer experience.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-6">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Precision Staggering</h3>
+                <p class="text-gray-500 leading-relaxed">Dynamically staggers email delivery using BullMQ delayed jobs to prevent hitting ESP rate limits when sending bulk campaigns.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-500 mb-6">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Idempotent Execution</h3>
+                <p class="text-gray-500 leading-relaxed">Guarantees zero duplicate emails even if the worker process crashes mid-execution, utilizing Postgres transactions and Redis locks.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500 mb-6">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Elastic Search</h3>
+                <p class="text-gray-500 leading-relaxed">Full-text search capabilities across millions of scheduled and sent emails powered by a dedicated Elasticsearch cluster.</p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-6">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Slack Notifications</h3>
+                <p class="text-gray-500 leading-relaxed">Real-time webhook integration pushing critical rate-limit alerts directly to the user's Slack workspace.</p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-500 mb-6">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Neon DB Pooling</h3>
+                <p class="text-gray-500 leading-relaxed">Prisma is configured to handle serverless Postgres connection pooling via PgBouncer for massive parallel worker execution.</p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-teal-500 mb-6">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Fully Dockerized</h3>
+                <p class="text-gray-500 leading-relaxed">Entire 5-tier architecture is containerized. Spin up the entire cluster locally with a single <code>make run</code> command.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="w-12 h-12 bg-brand-500 rounded-lg flex items-center justify-center text-white font-bold text-2xl mx-auto mb-6">R</div>
+            <p class="text-gray-400 mb-4">Developed by Karthikeya Akhandam for the Outbox Assessment</p>
+            <a href="https://github.com/karthikeya-akhandam" class="text-brand-500 hover:text-brand-400 font-medium transition-colors">View on GitHub</a>
+        </div>
+    </footer>
+
+</body>
+</html>
